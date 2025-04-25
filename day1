@@ -1,3 +1,4 @@
+//SOURCE CODE
 #include <stdio.h>
 
 int main() {
@@ -11,3 +12,59 @@ int main() {
 
 
 //OUTPUT: Sum of numbers from 1 to 5 is 15
+
+
+Next we compile the C program with RISC-V by typing the following in the terminal:
+riscv64-unknown-elf-gcc -O1 -mabi=lp64 -march=rv64i -o sum1ton.o sum1ton.c
+
+Next, we display the assembly version of the program by typing the following the terminal:
+riscv64-unknown-elf-objdump -d sum1ton.o | more
+
+//ASSEMBLY CODE OUTPUT
+0000000000010184 <main>:
+   10184:	ff010113          	addi	sp,sp,-16
+   10188:	00113423          	sd	ra,8(sp)
+   1018c:	06400793          	li	a5,100
+   10190:	fff7879b          	addiw	a5,a5,-1
+   10194:	fe079ee3          	bnez	a5,10190 <main+0xc>
+   10198:	00001637          	lui	a2,0x1
+   1019c:	3ba60613          	addi	a2,a2,954 # 13ba <register_fini-0xecf6>
+   101a0:	06400593          	li	a1,100
+   101a4:	00021537          	lui	a0,0x21
+   101a8:	19050513          	addi	a0,a0,400 # 21190 <__clzdi2+0x48>
+   101ac:	26c000ef          	jal	ra,10418 <printf>
+   101b0:	00000513          	li	a0,0
+   101b4:	00813083          	ld	ra,8(sp)
+   101b8:	01010113          	addi	sp,sp,16
+   101bc:	00008067          	ret
+
+
+Next, we use single step in asm-code of main() with "spike" debugger by typing the following in the terminal:
+spike pk sum1ton.o
+
+To debug, we use:
+vsduser@vsduser-VirtualBox:~/Day_1$ spike -d pk sum1ton.o
+(spike) until pc 0 100b0
+bbl loader
+(spike) reg 0 a2
+0x0000000000000000
+(spike) reg 0 a0
+0x0000000000000001
+(spike) reg 0 sp
+0x0000003ffffffb50
+(spike) 
+core   0: 0x00000000000100b0 (0x00001637) lui     a2, 0x1
+(spike) reg 0 a2
+0x0000000000001000
+(spike) 
+core   0: 0x00000000000100b4 (0x00021537) lui     a0, 0x21
+(spike) reg 0 a0
+0x0000000000021000
+(spike) reg 0 sp
+0x0000003ffffffb50
+(spike) 
+core   0: 0x00000000000100b8 (0xff010113) addi    sp, sp, -16
+(spike) reg 0 sp
+0x0000003ffffffb40
+(spike)
+
